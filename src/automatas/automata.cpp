@@ -1,4 +1,5 @@
 #include "automatas/automata.h"
+#include "state_set.h"
 
 #include <memory>
 #include <stdexcept>
@@ -6,11 +7,11 @@
 #include <utility>
 #include <vector>
 
-Automata::Automata(std::string name, std::unique_ptr<States> states,
+Automata::Automata(std::string name, std::unique_ptr<StateSet> states,
                    std::shared_ptr<Alphabet> alphabet,
                    std::vector<std::shared_ptr<Transition>> transitions,
                    std::shared_ptr<State> initial_state,
-                   std::unique_ptr<States> final_states)
+                   std::unique_ptr<StateSet> final_states)
     : m_name(std::move(name)), m_states(std::move(states)),
       m_alphabet(std::move(alphabet)), m_transitions(std::move(transitions)),
       m_initial_state(std::move(initial_state)),
@@ -56,19 +57,19 @@ Automata::Automata(std::string name, std::unique_ptr<States> states,
       throw std::invalid_argument("Automata transition cannot be NULL");
     }
 
-    if (!this->m_states->contains(transition->get_from())) {
+    if (!this->m_states->contains(transition->from())) {
       throw std::invalid_argument(
           "Transition origin state does not belong to the Automata");
     }
 
-    for (const auto &destination : transition->get_to()) {
+    for (const auto &destination : transition->to()) {
       if (!this->m_states->contains(destination)) {
         throw std::invalid_argument(
             "Transition destination state does not belong to the Automata");
       }
     }
 
-    m_transitions_by_state[transition->get_from()].push_back(transition);
+    m_transitions_by_state[transition->from()].push_back(transition);
   }
 }
 
@@ -85,11 +86,11 @@ bool Automata::accept(const std::vector<std::string> &word) const {
       const auto &transitions = this->m_transitions_by_state.at(state);
 
       for (auto t : transitions) {
-        if (t->get_symbol() != symbol) {
+        if (t->symbol() != symbol) {
           continue;
         }
 
-        for (auto next : t->get_to()) {
+        for (auto next : t->to()) {
           next_states.push_back(next);
         }
       }

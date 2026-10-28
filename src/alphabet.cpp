@@ -27,10 +27,6 @@ Alphabet::Alphabet(std::string name, std::vector<std::string> symbols)
   }
 }
 
-const std::vector<std::string> &Alphabet::get_symbols() const {
-  return m_symbols;
-}
-
 bool Alphabet::contains(const std::string &symbol) const {
   return std::ranges::find(m_symbols, symbol) != m_symbols.end();
 }

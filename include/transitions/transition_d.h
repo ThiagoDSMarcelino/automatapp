@@ -1,9 +1,10 @@
 #pragma once
 
+#include "core.h"
 #include "transition.h"
 
 class TransitionD : public Transition {
 public:
-  TransitionD(std::string symbol, std::shared_ptr<State> from,
+  TransitionD(Symbol symbol, std::shared_ptr<State> from,
               std::shared_ptr<State> to);
 };
