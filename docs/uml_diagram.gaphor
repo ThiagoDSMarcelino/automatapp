@@ -3605,7 +3605,7 @@ controlflow {
 <val>True</val>
 </isAbstract>
 <name>
-<val>LoaderDAO</val>
+<val>Loader</val>
 </name>
 <ownedAttribute>
 <reflist>

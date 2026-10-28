@@ -1,8 +1,8 @@
 #pragma once
 
+#include "../transitions/transition.h"
 #include "alphabet.h"
 #include "state.h"
-#include "transition.h"
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -33,13 +33,3 @@ public:
   bool accept(const std::vector<std::string> &word) const;
   virtual ~Automata() = default;
 };
-
-class DFA : public Automata {
-public:
-  DFA(std::string name, std::unique_ptr<States> states,
-      std::shared_ptr<Alphabet> alphabet,
-      std::vector<std::shared_ptr<TransitionD>> transitions,
-      std::shared_ptr<State> initial_state,
-      std::unique_ptr<States> final_states);
-};
-;

@@ -1,7 +1,7 @@
 #include "alphabet.h"
-#include "automata.h"
+#include "automatas/dfa.h"
 #include "state.h"
-#include "transition.h"
+#include "transitions/transition_d.h"
 #include <iostream>
 #include <memory>
 #include <string>
