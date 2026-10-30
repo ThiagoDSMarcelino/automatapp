@@ -2,6 +2,7 @@
 #include "state_set.h"
 
 #include <memory>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -52,9 +53,19 @@ Automata::Automata(std::string name, std::unique_ptr<StateSet> states,
     m_transitions_by_state[state];
   }
 
+  std::set<std::pair<std::shared_ptr<State>, std::string>> seen;
   for (const auto &transition : this->m_transitions) {
     if (transition == nullptr) {
       throw std::invalid_argument("Automata transition cannot be NULL");
+    }
+
+    if (!transition->from()->name().empty()) {
+      auto pair = std::make_pair(transition->from(), transition->symbol());
+      if (!seen.insert(pair).second) {
+        throw std::invalid_argument("Duplicate transition from state " +
+                                    transition->from()->name() +
+                                    " for symbol " + transition->symbol());
+      }
     }
 
     if (!this->m_states->contains(transition->from())) {
