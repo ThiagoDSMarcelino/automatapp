@@ -6,7 +6,7 @@
 
 TestBattery::TestBattery(const std::string &name,
                          std::vector<std::vector<std::string>> &language,
-                         std::shared_ptr<Automata> automata)
+                         std::shared_ptr<AutomataBase> automata)
     : m_name(name), m_language(language), m_automata(automata) {}
 
 std::shared_ptr<TestResult> TestBattery::run() {

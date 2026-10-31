@@ -1,26 +1,31 @@
 #pragma once
 
-#include "screen_manager.h"
 #include <ftxui/component/component.hpp>
 #include <ftxui/dom/elements.hpp>
+#include <functional>
 #include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 class MainMenu : public ftxui::ComponentBase {
 public:
-  explicit MainMenu(ScreenManager &screen_manager)
-      : m_screen_manager(screen_manager) {
+  struct Item {
+    std::string label;
+    std::function<void()> on_select;
+  };
+
+  explicit MainMenu(std::vector<Item> items) : m_items(std::move(items)) {
     using namespace ftxui;
 
-    MenuOption menu_opt = MenuOption::Vertical();
-    menu_opt.on_enter = [this] {
-      if (m_selected_option == 3) {
-        m_screen_manager.exit();
-      } else {
-        m_screen_manager.navigate(m_selected_option + 1);
-      }
-    };
+    for (const auto &item : m_items) {
+      m_labels.push_back(item.label);
+    }
 
-    auto menu = Menu(&m_options, &m_selected_option, menu_opt);
+    MenuOption menu_opt = MenuOption::Vertical();
+    menu_opt.on_enter = [this] { m_items[m_selected_option].on_select(); };
+
+    auto menu = Menu(&m_labels, &m_selected_option, menu_opt);
 
     auto screen = Renderer(menu, [menu] {
       return vbox({
@@ -36,8 +41,7 @@ public:
   }
 
 private:
-  ScreenManager &m_screen_manager;
-  std::vector<std::string> m_options = {"Automatas", "Languages", "Tests",
-                                        "Exit"};
+  std::vector<Item> m_items;
+  std::vector<std::string> m_labels;
   int m_selected_option = 0;
 };

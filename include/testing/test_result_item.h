@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core.h"
+#include "core/language_types.h"
 
 class TestResultItem {
 public:

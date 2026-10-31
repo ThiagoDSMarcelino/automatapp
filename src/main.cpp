@@ -1,25 +1,19 @@
-#include "screens/main_menu.h"
+#include "core/alphabet.h"
+#include "core/system_manager.h"
 #include "screens/screen_manager.h"
-#include <ftxui/component/component.hpp>
-#include <ftxui/dom/elements.hpp>
-
-using namespace ftxui;
-
-Component Placeholder(ScreenManager &manager, std::string titulo) {
-  auto voltar = Button("Go back", [&manager] { manager.navigate(0); });
-  return Renderer(voltar, [=] {
-    return vbox({text(titulo) | bold, separator(), voltar->Render()}) | border |
-           center;
-  });
-}
 
 int main() {
-  ScreenManager manager;
+  SystemManager systemManager;
 
-  manager.add(Make<MainMenu>(manager));
-  manager.add(Placeholder(manager, "Automatas"));
-  manager.add(Placeholder(manager, "Languages"));
-  manager.add(Placeholder(manager, "Tests"));
+  auto binary = Alphabet::Create("Binary", {"0", "1"});
+  auto boolean = Alphabet::Create("Boolean", {"true", "false"});
 
-  manager.run();
+  systemManager.add_alphabet(binary.value());
+  systemManager.add_alphabet(boolean.value());
+
+  ScreenManager screenManager(systemManager);
+
+  screenManager.run();
+
+  return 0;
 }
