@@ -1,6 +1,5 @@
 #include "core/alphabet.h"
 #include "core/system_manager.h"
-#include "screens/screen_manager.h"
 
 int main() {
   SystemManager systemManager;
@@ -10,10 +9,6 @@ int main() {
 
   systemManager.add_alphabet(binary.value());
   systemManager.add_alphabet(boolean.value());
-
-  ScreenManager screenManager(systemManager);
-
-  screenManager.run();
 
   return 0;
 }
