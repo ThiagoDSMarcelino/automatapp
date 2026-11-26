@@ -24,6 +24,6 @@ struct AutomataSpec {
 };
 
 Result<std::shared_ptr<AutomataBase>>
-BuildAutomata(const AutomataSpec &spec, std::shared_ptr<Alphabet> alphabet);
+build_automata(const AutomataSpec &spec, std::shared_ptr<Alphabet> alphabet);
 
-AutomataSpec ToSpec(const AutomataBase &automata);
+AutomataSpec to_spec(const AutomataBase &automata);

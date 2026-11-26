@@ -1,5 +1,6 @@
-#include "main_window.h"
+#include "main_window/main_window.h"
 #include "ui_main_window.h"
+#include "alphabet_dialog/alphabet_dialog.h"
 #include <ranges>
 
 MainWindow::MainWindow(std::unique_ptr<SystemManager> manager, QWidget *parent)
@@ -11,6 +12,8 @@ MainWindow::MainWindow(std::unique_ptr<SystemManager> manager, QWidget *parent)
 
     ui->mainSplitter->setStretchFactor(0, 3);
     ui->mainSplitter->setStretchFactor(1, 2);
+
+    connect(ui->manageAlphabetsButton, &QPushButton::clicked, this, &MainWindow::openAlphabetDialog);
 
     refreshAlphabetCombo();
 }
@@ -30,6 +33,20 @@ void MainWindow::refreshAlphabetCombo()
 
     QStringList names(view.begin(), view.end());
 
+    const QString current = ui->alphabetCombo->currentText();
+
     ui->alphabetCombo->clear();
     ui->alphabetCombo->addItems(names);
+
+    if (const int index = ui->alphabetCombo->findText(current); index >= 0) {
+        ui->alphabetCombo->setCurrentIndex(index);
+    }
+}
+
+void MainWindow::openAlphabetDialog()
+{
+    AlphabetDialog dialog(*system_manager, this);
+    dialog.exec();
+
+    refreshAlphabetCombo();
 }

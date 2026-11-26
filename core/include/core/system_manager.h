@@ -2,7 +2,9 @@
 
 #include "automatas/automata_base.h"
 #include "core/alphabet.h"
+#include "core/language_types.h"
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -12,9 +14,13 @@ public:
     return m_alphabets;
   };
 
-  void add_alphabet(std::shared_ptr<Alphabet> alphabet) {
-    m_alphabets.push_back(std::move(alphabet));
-  }
+  std::shared_ptr<Alphabet> find_alphabet(const std::string &name) const;
+  bool is_alphabet_in_use(const std::string &name) const;
+
+  Result<void> add_alphabet(std::shared_ptr<Alphabet> alphabet);
+  Result<void> replace_alphabet(const std::string &name,
+                                std::shared_ptr<Alphabet> alphabet);
+  Result<void> remove_alphabet(const std::string &name);
 
   const std::vector<std::shared_ptr<AutomataBase>> &automatas() const {
     return m_automatas;

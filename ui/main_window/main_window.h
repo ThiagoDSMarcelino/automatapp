@@ -21,6 +21,7 @@ private:
     std::unique_ptr<SystemManager> system_manager;
 
     void refreshAlphabetCombo();
+    void openAlphabetDialog();
 };
 
 #endif // MAIN_WINDOW_H

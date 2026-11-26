@@ -15,7 +15,7 @@ namespace {
 using StateMap = std::unordered_map<std::string, std::shared_ptr<State>>;
 
 Result<std::vector<std::shared_ptr<State>>>
-Resolve(const StateMap &by_name, const std::vector<std::string> &names) {
+resolve_states(const StateMap &by_name, const std::vector<std::string> &names) {
   std::vector<std::shared_ptr<State>> resolved;
   resolved.reserve(names.size());
   for (const auto &name : names) {
@@ -30,14 +30,14 @@ Resolve(const StateMap &by_name, const std::vector<std::string> &names) {
   return resolved;
 }
 
-std::string Label(const TransitionSpec &t) {
+std::string transition_label(const TransitionSpec &t) {
   return "δ(" + t.from + ", " + t.symbol + ")";
 }
 
 } // namespace
 
 Result<std::shared_ptr<AutomataBase>>
-BuildAutomata(const AutomataSpec &spec, std::shared_ptr<Alphabet> alphabet) {
+build_automata(const AutomataSpec &spec, std::shared_ptr<Alphabet> alphabet) {
   if (alphabet == nullptr) {
     return std::unexpected("Select an alphabet");
   }
@@ -83,7 +83,7 @@ BuildAutomata(const AutomataSpec &spec, std::shared_ptr<Alphabet> alphabet) {
     }
   }
 
-  auto finals = Resolve(by_name, spec.finals);
+  auto finals = resolve_states(by_name, spec.finals);
   if (!finals) {
     return std::unexpected(finals.error());
   }
@@ -105,16 +105,16 @@ BuildAutomata(const AutomataSpec &spec, std::shared_ptr<Alphabet> alphabet) {
       return std::unexpected("State '" + t.from + "' does not exist");
     }
 
-    auto to = Resolve(by_name, t.to);
+    auto to = resolve_states(by_name, t.to);
     if (!to) {
-      return std::unexpected(Label(t) + ": " + to.error());
+      return std::unexpected(transition_label(t) + ": " + to.error());
     }
 
     Result<std::shared_ptr<Transition>> transition;
     switch (spec.type) {
     case AutomataType::DFA:
       if (to->size() != 1) {
-        return std::unexpected(Label(t) + " must have exactly one target");
+        return std::unexpected(transition_label(t) + " must have exactly one target");
       }
       transition = TransitionD::Create(t.symbol, from->second, to->front());
       break;
@@ -127,7 +127,7 @@ BuildAutomata(const AutomataSpec &spec, std::shared_ptr<Alphabet> alphabet) {
     }
 
     if (!transition) {
-      return std::unexpected(Label(t) + ": " + transition.error());
+      return std::unexpected(transition_label(t) + ": " + transition.error());
     }
 
     transitions.push_back(std::move(*transition));
@@ -165,7 +165,7 @@ BuildAutomata(const AutomataSpec &spec, std::shared_ptr<Alphabet> alphabet) {
   return built;
 }
 
-AutomataSpec ToSpec(const AutomataBase &automata) {
+AutomataSpec to_spec(const AutomataBase &automata) {
   AutomataSpec spec;
   spec.name = automata.name();
   spec.type = automata.type();
