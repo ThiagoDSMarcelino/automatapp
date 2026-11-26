@@ -37,13 +37,13 @@ AlphabetDialog::AlphabetDialog(SystemManager &manager, QWidget *parent)
 {
     ui->setupUi(this);
 
-    connect(ui->alphabetList, &QListWidget::itemSelectionChanged, this, &AlphabetDialog::onSelectionChanged);
-    connect(ui->newButton, &QPushButton::clicked, this, &AlphabetDialog::onNew);
-    connect(ui->saveButton, &QPushButton::clicked, this, &AlphabetDialog::onSave);
-    connect(ui->removeButton, &QPushButton::clicked, this, &AlphabetDialog::onRemove);
+    connect(ui->alphabetList, &QListWidget::itemSelectionChanged, this, &AlphabetDialog::on_selection_changed);
+    connect(ui->newButton, &QPushButton::clicked, this, &AlphabetDialog::on_new);
+    connect(ui->saveButton, &QPushButton::clicked, this, &AlphabetDialog::on_save);
+    connect(ui->removeButton, &QPushButton::clicked, this, &AlphabetDialog::on_remove);
 
-    refreshList();
-    onNew();
+    refresh_list();
+    on_new();
 }
 
 AlphabetDialog::~AlphabetDialog()
@@ -51,7 +51,7 @@ AlphabetDialog::~AlphabetDialog()
     delete ui;
 }
 
-void AlphabetDialog::refreshList(const QString &select)
+void AlphabetDialog::refresh_list(const QString &select)
 {
     QSignalBlocker blocker(ui->alphabetList);
     ui->alphabetList->clear();
@@ -71,10 +71,10 @@ void AlphabetDialog::refreshList(const QString &select)
     }
 
     blocker.unblock();
-    onSelectionChanged();
+    on_selection_changed();
 }
 
-void AlphabetDialog::onSelectionChanged()
+void AlphabetDialog::on_selection_changed()
 {
     const auto selected = ui->alphabetList->selectedItems();
     if (selected.isEmpty()) {
@@ -92,7 +92,7 @@ void AlphabetDialog::onSelectionChanged()
     ui->removeButton->setEnabled(true);
 }
 
-void AlphabetDialog::onNew()
+void AlphabetDialog::on_new()
 {
     ui->alphabetList->clearSelection();
     ui->nameEdit->clear();
@@ -100,12 +100,12 @@ void AlphabetDialog::onNew()
     ui->nameEdit->setFocus();
 }
 
-void AlphabetDialog::onSave()
+void AlphabetDialog::on_save()
 {
     auto alphabet = Alphabet::Create(ui->nameEdit->text().trimmed().toStdString(),
                                      parse_symbols(ui->symbolsEdit->text()));
     if (!alphabet) {
-        showError(alphabet.error());
+        show_error(alphabet.error());
         return;
     }
 
@@ -116,14 +116,14 @@ void AlphabetDialog::onSave()
                             ? system_manager.add_alphabet(*alphabet)
                             : system_manager.replace_alphabet(selected.first()->text().toStdString(), *alphabet);
     if (!result) {
-        showError(result.error());
+        show_error(result.error());
         return;
     }
 
-    refreshList(name);
+    refresh_list(name);
 }
 
-void AlphabetDialog::onRemove()
+void AlphabetDialog::on_remove()
 {
     const auto selected = ui->alphabetList->selectedItems();
     if (selected.isEmpty()) {
@@ -138,15 +138,15 @@ void AlphabetDialog::onRemove()
     }
 
     if (const auto result = system_manager.remove_alphabet(name.toStdString()); !result) {
-        showError(result.error());
+        show_error(result.error());
         return;
     }
 
-    refreshList();
-    onNew();
+    refresh_list();
+    on_new();
 }
 
-void AlphabetDialog::showError(const std::string &message)
+void AlphabetDialog::show_error(const std::string &message)
 {
     QMessageBox::warning(this, tr("Alfabeto inválido"), QString::fromStdString(message));
 }

@@ -20,12 +20,12 @@ private:
     Ui::AlphabetDialog *ui;
     SystemManager &system_manager;
 
-    void refreshList(const QString &select = {});
-    void onSelectionChanged();
-    void onNew();
-    void onSave();
-    void onRemove();
-    void showError(const std::string &message);
+    void refresh_list(const QString &select = {});
+    void on_selection_changed();
+    void on_new();
+    void on_save();
+    void on_remove();
+    void show_error(const std::string &message);
 };
 
 #endif // ALPHABET_DIALOG_H

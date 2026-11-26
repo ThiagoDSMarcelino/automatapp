@@ -26,9 +26,12 @@ public:
     return m_automatas;
   };
 
-  void add_automata(std::shared_ptr<AutomataBase> automata) {
-    m_automatas.push_back(std::move(automata));
-  }
+  std::shared_ptr<AutomataBase> find_automata(const std::string &name) const;
+
+  Result<void> add_automata(std::shared_ptr<AutomataBase> automata);
+  Result<void> replace_automata(const std::string &name,
+                                std::shared_ptr<AutomataBase> automata);
+  Result<void> remove_automata(const std::string &name);
 
 private:
   std::vector<std::shared_ptr<Alphabet>> m_alphabets;
