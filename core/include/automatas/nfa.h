@@ -12,6 +12,8 @@ public:
          std::shared_ptr<State> initial_state,
          std::unique_ptr<StateSet> final_states);
 
+  AutomataType type() const override { return AutomataType::NFA; }
+
 private:
   NFA(std::string name, std::unique_ptr<StateSet> states,
       std::shared_ptr<Alphabet> alphabet,

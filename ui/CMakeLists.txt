@@ -5,4 +5,4 @@ qt_add_executable(automatapp main.cpp
     main_window.h main_window.cpp main_window.ui)
 
 target_link_libraries(automatapp PRIVATE automata_core Qt6::Widgets)
-target_compile_options(automata_core PRIVATE -Wall -Wextra -Wpedantic -Wshadow)
+target_compile_options(automatapp PRIVATE -Wall -Wextra -Wpedantic -Wshadow)

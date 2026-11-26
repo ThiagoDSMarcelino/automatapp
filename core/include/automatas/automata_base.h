@@ -1,5 +1,6 @@
 #pragma once
 
+#include "automatas/automata_type.h"
 #include "core/alphabet.h"
 #include "core/language_types.h"
 #include "core/state_set.h"
@@ -12,6 +13,17 @@
 class AutomataBase {
 public:
   const std::string &name() const { return m_name; };
+  const std::shared_ptr<Alphabet> &alphabet() const { return m_alphabet; }
+  const StateSet &states() const { return *m_states; }
+  const std::vector<std::shared_ptr<Transition>> &transitions() const {
+    return m_transitions;
+  }
+  const std::shared_ptr<State> &initial_state() const {
+    return m_initial_state;
+  }
+  const StateSet &final_states() const { return *m_final_states; }
+  virtual AutomataType type() const = 0;
+
   bool accept(const Word &word) const;
   virtual ~AutomataBase() = default;
 
