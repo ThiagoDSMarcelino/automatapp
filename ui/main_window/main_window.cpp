@@ -1,5 +1,6 @@
 #include "main_window/main_window.h"
 #include "alphabet_dialog/alphabet_dialog.h"
+#include "diagram/diagram_scene.h"
 #include "ui_main_window.h"
 
 #include <QCloseEvent>
@@ -66,8 +67,10 @@ QListWidgetItem *add_message(QListWidget *list, const QString &text,
 
 MainWindow::MainWindow(std::unique_ptr<SystemManager> manager, QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow),
-      system_manager(std::move(manager)) {
+      system_manager(std::move(manager)),
+      diagram_scene(new DiagramScene(this)) {
   ui->setupUi(this);
+  ui->diagramView->setScene(diagram_scene);
 
   ui->mainSplitter->setStretchFactor(0, 3);
   ui->mainSplitter->setStretchFactor(1, 2);
@@ -313,6 +316,7 @@ void MainWindow::load_automata(const std::string &name) {
   render_header();
   render_states();
   render_transitions();
+  render_diagram(true);
   spec_changed();
 }
 
@@ -325,6 +329,7 @@ void MainWindow::clear_editor() {
   render_header();
   render_states();
   render_transitions();
+  render_diagram(true);
 
   ui->statesGroup->setEnabled(false);
   ui->transitionsGroup->setEnabled(false);
@@ -488,8 +493,18 @@ void MainWindow::schedule_refresh() {
     render_header();
     render_states();
     render_transitions();
+    render_diagram(false);
     spec_changed();
   });
+}
+
+void MainWindow::render_diagram(bool reset_layout) {
+  diagram_scene->set_spec(spec, reset_layout);
+  if (reset_layout) {
+    ui->diagramView->fit_content();
+  } else {
+    ui->diagramView->ensure_content_visible();
+  }
 }
 
 void MainWindow::render_header() {

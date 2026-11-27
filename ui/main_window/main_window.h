@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 
+class DiagramScene;
 class QListWidgetItem;
 class QTableWidgetItem;
 
@@ -28,6 +29,7 @@ protected:
 private:
   Ui::MainWindow *ui;
   std::unique_ptr<SystemManager> system_manager;
+  DiagramScene *diagram_scene;
 
   AutomataSpec spec;
   std::string loaded_name;
@@ -64,6 +66,7 @@ private:
   void render_states();
   void render_transitions();
   std::vector<Symbol> visible_symbols() const;
+  void render_diagram(bool reset_layout);
 
   void spec_changed();
   void update_window_title();

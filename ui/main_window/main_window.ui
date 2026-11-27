@@ -197,7 +197,7 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_5">
             <item>
-             <widget class="QGraphicsView" name="diagramView"/>
+             <widget class="DiagramView" name="diagramView"/>
             </item>
            </layout>
           </widget>
@@ -306,6 +306,13 @@
    </widget>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DiagramView</class>
+   <extends>QGraphicsView</extends>
+   <header>diagram/diagram_view.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
