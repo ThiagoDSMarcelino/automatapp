@@ -3,12 +3,14 @@
 
 #include "automatas/automata_spec.h"
 #include "core/system_manager.h"
+#include "storage/storage.h"
 #include <QMainWindow>
 #include <string>
 #include <vector>
 
 class DiagramScene;
 class QListWidgetItem;
+class QTimer;
 class QTableWidgetItem;
 
 namespace Ui {
@@ -19,8 +21,8 @@ class MainWindow : public QMainWindow {
   Q_OBJECT
 
 public:
-  explicit MainWindow(std::unique_ptr<SystemManager> manager,
-                      QWidget *parent = nullptr);
+  MainWindow(std::unique_ptr<SystemManager> manager, Storage data_storage,
+             QWidget *parent = nullptr);
   ~MainWindow();
 
 protected:
@@ -29,7 +31,9 @@ protected:
 private:
   Ui::MainWindow *ui;
   std::unique_ptr<SystemManager> system_manager;
+  Storage storage;
   DiagramScene *diagram_scene;
+  QTimer *save_timer;
 
   AutomataSpec spec;
   std::string loaded_name;
@@ -70,6 +74,10 @@ private:
 
   void spec_changed();
   void update_window_title();
+
+  void schedule_save();
+  void save_now();
+  void store_layout();
 };
 
 #endif // MAIN_WINDOW_H

@@ -7,7 +7,8 @@ qt_add_executable(automatapp main.cpp
     diagram/diagram_scene.h diagram/diagram_scene.cpp
     diagram/diagram_view.h diagram/diagram_view.cpp
     diagram/state_item.h diagram/state_item.cpp
-    diagram/edge_item.h diagram/edge_item.cpp)
+    diagram/edge_item.h diagram/edge_item.cpp
+    storage/storage.h storage/storage.cpp)
 
 target_include_directories(automatapp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 

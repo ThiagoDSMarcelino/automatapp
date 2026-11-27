@@ -1,19 +1,22 @@
-#include "core/alphabet.h"
-#include "core/system_manager.h"
 #include "main_window/main_window.h"
+#include "storage/storage.h"
 #include <QApplication>
+#include <QMessageBox>
 
 int main(int argc, char *argv[]) {
-  auto manager = std::make_unique<SystemManager>();
-
-  manager->add_alphabet(Alphabet::Create("Binary", {"0", "1"}).value());
-  manager->add_alphabet(Alphabet::Create("Boolean", {"true", "false"}).value());
-
   QApplication app(argc, argv);
+  QApplication::setApplicationName(QStringLiteral("automatapp"));
 
-  MainWindow w(std::move(manager));
+  Storage storage(Storage::default_directory());
+  auto [manager, warning] = storage.load();
+
+  MainWindow w(std::move(manager), std::move(storage));
 
   w.show();
+
+  if (warning) {
+    QMessageBox::warning(&w, QObject::tr("Erro ao carregar dados"), *warning);
+  }
 
   return app.exec();
 }

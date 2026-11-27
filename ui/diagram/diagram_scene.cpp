@@ -89,6 +89,13 @@ void DiagramScene::set_positions(const Positions &positions) {
   rebuild();
 }
 
+void DiagramScene::rename_state(const QString &from, const QString &to) {
+  store_positions();
+  if (m_positions.contains(from)) {
+    m_positions.insert(to, m_positions.take(from));
+  }
+}
+
 void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
   if (event->buttons() & Qt::LeftButton &&
       dynamic_cast<StateItem *>(mouseGrabberItem()) != nullptr) {

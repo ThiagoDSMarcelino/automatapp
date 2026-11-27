@@ -1,6 +1,7 @@
 #include "main_window/main_window.h"
 #include "alphabet_dialog/alphabet_dialog.h"
 #include "diagram/diagram_scene.h"
+#include "diagram/diagram_view.h"
 #include "ui_main_window.h"
 
 #include <QCloseEvent>
@@ -16,7 +17,7 @@ namespace {
 const QColor ErrorBackground(220, 50, 50, 70);
 const QColor ErrorText(200, 40, 40);
 const QColor OkText(30, 140, 60);
-const QColor WarningText(190, 120, 0);
+const QColor InfoText(40, 110, 210);
 
 QString to_qt(const std::string &text) { return QString::fromStdString(text); }
 
@@ -65,11 +66,16 @@ QListWidgetItem *add_message(QListWidget *list, const QString &text,
 
 } // namespace
 
-MainWindow::MainWindow(std::unique_ptr<SystemManager> manager, QWidget *parent)
+MainWindow::MainWindow(std::unique_ptr<SystemManager> manager,
+                       Storage data_storage, QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow),
-      system_manager(std::move(manager)),
-      diagram_scene(new DiagramScene(this)) {
+      system_manager(std::move(manager)), storage(std::move(data_storage)),
+      diagram_scene(new DiagramScene(this)), save_timer(new QTimer(this)) {
   ui->setupUi(this);
+
+  save_timer->setSingleShot(true);
+  save_timer->setInterval(500);
+  connect(save_timer, &QTimer::timeout, this, &MainWindow::save_now);
   ui->diagramView->setScene(diagram_scene);
 
   ui->mainSplitter->setStretchFactor(0, 3);
@@ -117,11 +123,14 @@ MainWindow::MainWindow(std::unique_ptr<SystemManager> manager, QWidget *parent)
 MainWindow::~MainWindow() { delete ui; }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
-  if (confirm_discard()) {
-    event->accept();
-  } else {
+  if (!confirm_discard()) {
     event->ignore();
+    return;
   }
+
+  store_layout();
+  save_now();
+  event->accept();
 }
 
 void MainWindow::refresh_alphabet_combo() {
@@ -149,6 +158,7 @@ void MainWindow::open_alphabet_dialog() {
   if (has_automata) {
     schedule_refresh();
   }
+  schedule_save();
 }
 
 void MainWindow::refresh_library(const std::string &select) {
@@ -268,6 +278,9 @@ void MainWindow::on_remove_automata() {
     return;
   }
 
+  storage.remove_layout(name.toStdString());
+  schedule_save();
+
   if (name.toStdString() == loaded_name) {
     dirty = false;
     clear_editor();
@@ -302,6 +315,8 @@ void MainWindow::load_automata(const std::string &name) {
     return;
   }
 
+  store_layout();
+
   spec = to_spec(*automata);
   loaded_name = name;
   has_automata = true;
@@ -317,6 +332,12 @@ void MainWindow::load_automata(const std::string &name) {
   render_states();
   render_transitions();
   render_diagram(true);
+
+  if (const auto positions = storage.layout(name); !positions.isEmpty()) {
+    diagram_scene->set_positions(positions);
+    ui->diagramView->fit_content();
+  }
+
   spec_changed();
 }
 
@@ -425,6 +446,7 @@ void MainWindow::on_state_item_changed(QTableWidgetItem *item) {
       break;
     }
 
+    diagram_scene->rename_state(to_qt(state), to_qt(renamed));
     spec.states[row] = renamed;
     if (spec.initial == state) {
       spec.initial = renamed;
@@ -699,25 +721,27 @@ void MainWindow::spec_changed() {
         static_cast<int>(spec.states.size() * alphabet->symbols().size());
     if (defined < expected) {
       add_message(ui->validationList,
-                  tr("⚠ AFD parcial: %1 transição(ões) não definida(s); a "
+                  tr("ℹ AFD parcial: %1 transição(ões) não definida(s); a "
                      "palavra é rejeitada ao cair nelas")
                       .arg(expected - defined),
-                  WarningText);
+                  InfoText);
     }
   }
 
   if (spec.finals.empty()) {
     add_message(
         ui->validationList,
-        tr("⚠ Nenhum estado final: o autômato não aceita nenhuma palavra"),
-        WarningText);
+        tr("ℹ Nenhum estado final: o autômato não aceita nenhuma palavra"),
+        InfoText);
   }
 
   if (loaded_name != spec.name) {
+    storage.rename_layout(loaded_name, spec.name);
     loaded_name = spec.name;
     refresh_library(loaded_name);
   }
 
+  schedule_save();
   update_window_title();
 }
 
@@ -732,4 +756,27 @@ void MainWindow::update_window_title() {
   }
 
   setWindowTitle(title);
+}
+
+void MainWindow::schedule_save() { save_timer->start(); }
+
+void MainWindow::save_now() {
+  save_timer->stop();
+
+  if (auto saved = storage.save(*system_manager); !saved) {
+    statusBar()->showMessage(tr("Erro ao salvar: %1").arg(to_qt(saved.error())),
+                             8000);
+  }
+}
+
+void MainWindow::store_layout() {
+  if (!has_automata || loaded_name.empty()) {
+    return;
+  }
+
+  if (diagram_scene->has_manual_layout()) {
+    storage.set_layout(loaded_name, diagram_scene->positions());
+  } else {
+    storage.remove_layout(loaded_name);
+  }
 }

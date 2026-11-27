@@ -17,6 +17,8 @@ public:
   void set_spec(const AutomataSpec &spec, bool reset_layout);
   Positions positions() const;
   void set_positions(const Positions &positions);
+  void rename_state(const QString &from, const QString &to);
+  bool has_manual_layout() const { return !m_auto_layout; }
 
 protected:
   void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
